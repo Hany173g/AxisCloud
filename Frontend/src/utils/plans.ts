@@ -1,6 +1,6 @@
 export type PlanId = 'free' | 'pro' | 'business'
 
-export type MonitorMethod = 'GET' | 'AHEAD' | 'POST'
+export type MonitorMethod = 'GET' | 'HEAD' | 'POST'
 
 export type PlanSpec = {
   id: PlanId
@@ -19,7 +19,7 @@ export const PLANS: Record<PlanId, PlanSpec> = {
     maxMonitors: 5,
     minCheckIntervalMinutes: 10,
     maxRequestTimeoutSeconds: 5,
-    allowedMethods: ['GET', 'AHEAD'],
+    allowedMethods: ['GET', 'HEAD'],
     allowHeaders: ['Accept', 'Accept-Language'],
   },
   pro: {
@@ -28,7 +28,7 @@ export const PLANS: Record<PlanId, PlanSpec> = {
     maxMonitors: 30,
     minCheckIntervalMinutes: 3,
     maxRequestTimeoutSeconds: 10,
-    allowedMethods: ['GET', 'AHEAD'],
+    allowedMethods: ['GET', 'HEAD'],
     allowHeaders: ['Accept', 'Accept-Language', 'User-Agent', 'Authorization', 'Cache-Control'],
   },
   business: {
@@ -37,7 +37,7 @@ export const PLANS: Record<PlanId, PlanSpec> = {
     maxMonitors: 100,
     minCheckIntervalMinutes: 1,
     maxRequestTimeoutSeconds: 15,
-    allowedMethods: ['GET', 'AHEAD', 'POST'],
+    allowedMethods: ['GET', 'HEAD', 'POST'],
     allowHeaders: [
       'Accept',
       'Accept-Language',

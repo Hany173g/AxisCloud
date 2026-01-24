@@ -10,8 +10,6 @@ import mongoose from "mongoose"
 
 
 export interface IMontior {
-
-    _id?: Types.ObjectId,
     userId : Types.ObjectId,
     url : string,
     method: string,
@@ -20,7 +18,11 @@ export interface IMontior {
     checkInterval : number,
     Headers: Record<string, string> ,
     checkAt:number,
-    plan : string
+    plan : string,
+    name: string,
+    slug : string,
+    status: string
+    isAlerts: boolean
 }
 
 
@@ -39,7 +41,7 @@ let montiorSchema = new Schema<IMontior>  ({
     },
     method : {
         type : String,
-        default : "Get"
+        default : "GET"
     },
     requestTime : {
         type : Number,
@@ -55,7 +57,28 @@ let montiorSchema = new Schema<IMontior>  ({
         type :Number
     },
     plan: {
-        type: String
+        type: String,
+        required:true
+    },
+    name : {
+        type: String,
+        required:true
+    },
+    slug: {
+        type: String,
+        required:true
+    },
+    isActive:{
+        type : Boolean,
+        default : true
+    },
+    status: {
+        type : String,
+        default : "up"
+    },
+    isAlerts: {
+        type : Boolean,
+        default : true
     }
 },{
     timestamps:true
@@ -66,3 +89,5 @@ let montiorSchema = new Schema<IMontior>  ({
 
 
 export let Montior = model<IMontior> ("Montiors",montiorSchema)
+
+export interface IMontiorDocument extends IMontior, Document {}

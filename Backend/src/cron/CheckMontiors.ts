@@ -3,12 +3,11 @@ import {Montior} from "../models/Montior.js";
 import {FreePlan} from "../utils/Plans.js"
 import {CheckUrl} from "../utils/CheckUrls.js"
 export async function CheckCurrentMontiors() {
- 
-  cron.schedule('*/1 * * * * *', async () => {
+ try{
+  cron.schedule('*/10 * * * * *', async () => {
     let date = Date.now()
-    let data = await Montior.find({checkAt:{$lt:date}})
-    console.log(data)
-    console.log(date)
+    let data = await Montior.find({checkAt:{$lt:date},isActive:true})
+   
     let ids = data.map(d => d._id)
     let free = (10 * 1000 * 60) 
     let pro = (3 * 1000 * 60) 
@@ -36,4 +35,9 @@ export async function CheckCurrentMontiors() {
       await CheckUrl(data)
   })
  
+ }catch(err)
+ {
+  console.log(err)
+ }
+  
 }

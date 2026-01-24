@@ -13,10 +13,9 @@ export function CheckToken(req : Request , res: Response,next: NextFunction)
     try{
         let reqUser = req as RequestUser
         let header : string | undefined = req.headers["authorization"]
-       
         if (!header || !header.startsWith("Bearer"))
         {
-            reqUser.user = null
+           reqUser.user = null
            return next()
         }
 
@@ -38,7 +37,7 @@ export function CheckToken(req : Request , res: Response,next: NextFunction)
         next()
     }catch(err : any)
     {
-         let reqUser = req as RequestUser
+        let reqUser = req as RequestUser
         console.log(err.message)
         reqUser.user = null
         next()

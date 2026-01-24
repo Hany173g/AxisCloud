@@ -1,7 +1,7 @@
 
 
 
-
+import {Types} from "mongoose"
 
 
 
@@ -11,7 +11,7 @@
 
 
 export interface UserType {
-    _id?:string
+    _id:Types.ObjectId
     username?: string,
     password?:string,
     email?:string,
@@ -21,5 +21,6 @@ export interface UserType {
 
 
 export interface UserTypeWithPlan extends UserType {
-    plan?:string
+    plan?:string,
+
 }

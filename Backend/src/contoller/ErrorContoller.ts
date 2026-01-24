@@ -1,5 +1,5 @@
 import {AppError} from "../utils/ErrorHandling.js"
- import type {Request,Response,NextFunction} from "express"
+import type {Request,Response,NextFunction} from "express"
 
 
 
@@ -10,12 +10,7 @@ import {AppError} from "../utils/ErrorHandling.js"
 
 
 
-const RequiredFields = (err : any) => {
-    let error = err.message.match(/`.*?`/g);
-    
-    let message = `${error} is Required`
-    return new AppError(400, message);
-}
+
 
 const DuplicateMongodb = (err : any) => {
     let error = Object.keys(err.keyValue).join(', ')
@@ -63,7 +58,7 @@ export function GlobalErrorHandling(err: any,req : Request , res: Response,next:
     if (process.env.NODE_ENV === "development") {
     sendErrorDev(err as AppError, res); 
     }else{
-        if (err.message.includes("required")) err = RequiredFields(err)
+        
         if (err.code == 11000) err = DuplicateMongodb(err)
         sendErroProduction(err as AppError,res)   
     }

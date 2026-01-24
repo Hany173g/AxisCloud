@@ -12,12 +12,12 @@
 
 export class Mail {
 
-   constructor(public username : string , public user : string  ,public title : string, public user_email : string , public user_pass : string ,  public html : string,public resetLink?  : string) {
+   constructor(public username : string , public user : string  ,public title : string, public user_email : string , public user_pass : string ,  public html : string) {
         this.username = username
         this.user = user
         this.title = title
         this.html = html
-        this.resetLink = resetLink
+     
         this.user_email = user_email
         this.user_pass = user_pass
     }

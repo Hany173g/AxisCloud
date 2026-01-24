@@ -13,6 +13,7 @@ export function CreateMonitorPage() {
   }, [token, navigate])
 
   const [url, setUrl] = useState('')
+  const [name, setName] = useState('')
   const [method, setMethod] = useState<CreateMonitorInput['method']>('GET')
   const [requestTime, setRequestTime] = useState(5)
   const [checkInterval, setCheckInterval] = useState(5)
@@ -34,12 +35,23 @@ export function CreateMonitorPage() {
     return Object.keys(out).length ? out : undefined
   }, [headersText])
 
+  const planId = normalizePlanId(resolvePlan())
+  const canUseHooks = planId === 'pro' || planId === 'business'
+  const [hookName, setHookName] = useState('')
+  const [hookUrl, setHookUrl] = useState('')
+  const hooks = useMemo(() => {
+    if (!canUseHooks) return undefined
+    const name = hookName.trim()
+    const url = hookUrl.trim()
+    if (!name || !url) return undefined
+    return { [name]: url } as Record<string, string>
+  }, [canUseHooks, hookName, hookUrl])
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
 
   const warnings = useMemo(() => {
-    const planId = normalizePlanId(resolvePlan())
     const spec = PLANS[planId]
     const list: string[] = []
 
@@ -85,12 +97,15 @@ export function CreateMonitorPage() {
             try {
               await apiCreateMonitor({
                 url,
+                name,
                 method,
                 requestTime: Number(requestTime),
                 checkInterval: Number(checkInterval),
                 headers,
+                hooks,
               })
               setDone(true)
+              navigate('/dashboard', { replace: true })
             } catch (err: any) {
               setError(err?.message ?? 'Failed to create monitor')
             } finally {
@@ -98,6 +113,18 @@ export function CreateMonitorPage() {
             }
           }}
         >
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Monitor Name</label>
+            <input
+              className="ui-input"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="My Website Monitor"
+              type="text"
+              required
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700">URL</label>
             <input
@@ -119,7 +146,7 @@ export function CreateMonitorPage() {
                 onChange={(e) => setMethod(e.target.value as CreateMonitorInput['method'])}
               >
                 <option value="GET">GET</option>
-                <option value="AHEAD">HEAD</option>
+                <option value="HEAD">HEAD</option>
                 <option value="POST">POST</option>
               </select>
             </div>
@@ -162,6 +189,41 @@ export function CreateMonitorPage() {
             />
             <p className="mt-1 text-xs text-slate-500">One header per line: Key: Value</p>
           </div>
+
+          {canUseHooks ? (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="text-sm font-semibold text-slate-900">Webhooks</div>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Hook name</label>
+                  <input
+                    className="ui-input"
+                    value={hookName}
+                    onChange={(e) => setHookName(e.target.value)}
+                    placeholder="down"
+                    type="text"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Hook URL</label>
+                  <input
+                    className="ui-input"
+                    value={hookUrl}
+                    onChange={(e) => setHookUrl(e.target.value)}
+                    placeholder="https://hooks.slack.com/..."
+                    type="url"
+                  />
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-slate-500">
+                Leave both fields empty to create the monitor without webhooks.
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+              Webhooks are available on Pro and Business plans.
+            </div>
+          )}
 
           {warnings.length ? (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">

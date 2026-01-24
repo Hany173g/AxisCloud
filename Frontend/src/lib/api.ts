@@ -77,6 +77,36 @@ export async function apiLogin(input: { email: string; password: string }) {
   })
 }
 
+export type HomeUserData = {
+  _id?: string
+  username: string
+  role: string
+  plan: string
+}
+
+export type HomeResponse = {
+  websiteData: number[]
+  userData: HomeUserData | null
+  logsCount: number
+  monitorsCount: number
+}
+
+export async function apiGetHome() {
+  const data = await request<{ websiteData: number[]; userData: HomeUserData | null }>('/GetHome', {
+    method: 'GET',
+    auth: true,
+  })
+
+  const logsCount = Number(data.websiteData?.[0] ?? 0)
+  const monitorsCount = Number(data.websiteData?.[1] ?? 0)
+
+  return {
+    ...data,
+    logsCount: Number.isFinite(logsCount) ? logsCount : 0,
+    monitorsCount: Number.isFinite(monitorsCount) ? monitorsCount : 0,
+  } satisfies HomeResponse
+}
+
 export async function apiCreateCode(input: { email: string }) {
   return request<unknown>('/CreateCode', {
     method: 'POST',
@@ -99,10 +129,12 @@ export async function apiUpdatePassword(token: string, input: { password: string
 
 export type CreateMonitorInput = {
   url: string
-  method: 'GET' | 'AHEAD' | 'POST' | 'HEAD'
+  method: 'GET' | 'HEAD' | 'POST'
   requestTime: number
   checkInterval: number
   headers?: Record<string, string>
+  name: string
+  hooks?: Record<string, string>
 }
 
 export async function apiCreateMonitor(input: CreateMonitorInput) {
@@ -113,10 +145,143 @@ export async function apiCreateMonitor(input: CreateMonitorInput) {
   })
 }
 
+export type UpdateMonitorInput = {
+  name?: string
+  url?: string
+  checkInterval?: number
+  requestTime?: number
+  method?: 'GET' | 'HEAD' | 'POST'
+  headers?: Record<string, string>
+  isActive?: boolean
+  isAlerts?: boolean
+  hooks?: Record<string, string>
+}
+
+export async function apiUpdateMonitor(montiorId: string, input: UpdateMonitorInput) {
+  return request<{ updateMontior: Monitor }>(`/UpdateMontior/${encodeURIComponent(montiorId)}`, {
+    method: 'PATCH',
+    auth: true,
+    body: JSON.stringify(input),
+  })
+}
+
+export async function apiDeleteMonitor(montiorId: string) {
+  return request<unknown>(`/DeleteMontior/${encodeURIComponent(montiorId)}`, {
+    method: 'DELETE',
+    auth: true,
+  })
+}
+
+export async function apiDeleteWebhookField(serivceId: string, input: { hookName: string }) {
+  return request<unknown>(`/deleteFeildWebHook/${encodeURIComponent(serivceId)}`, {
+    method: 'DELETE',
+    auth: true,
+    body: JSON.stringify(input),
+  })
+}
+
+export async function apiDeleteAllWebhookFields(serivceId: string) {
+  return request<unknown>(`/deleteAllFeildsWebHook/${encodeURIComponent(serivceId)}`, {
+    method: 'DELETE',
+    auth: true,
+  })
+}
+
 export async function apiTestUptime(url: string) {
-  return request<unknown>('/testUpTime', {
-    method: 'GET',
+  return request<{statusCode: number, headers: Record<string, string>, url: string}>('/testUpTime', {
+    method: 'POST',
     auth: true,
     body: JSON.stringify({ url }),
+  })
+}
+
+export type MonitorLog = {
+  _id: string
+  montiorId: string
+  status: string
+  httpStatus: number
+  responseTime: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type MonitorWebHook = {
+  hooks: Record<string, string>
+}
+
+export type Monitor = {
+  _id: string
+  userId: string
+  url: string
+  method: string
+  requestTime: number
+  isActive: boolean
+  checkInterval: number
+  Headers: Record<string, string>
+  checkAt: number
+  plan: string
+  name: string
+  slug: string
+  status: string
+  isAlerts: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export async function apiGetMonitors(params?: { skip?: number; sort?: string }) {
+  const queryParams = new URLSearchParams()
+  if (typeof params?.skip === 'number') queryParams.append('skip', params.skip.toString())
+  if (params?.sort) queryParams.append('sort', params.sort)
+  
+  const queryString = queryParams.toString()
+  const url = `/GetMontiors${queryString ? `?${queryString}` : ''}`
+  
+  return request<{montiors: Monitor[]}>(
+    url, {
+    method: 'GET',
+    auth: true,
+  })
+}
+
+export async function apiGetMonitor(slug: string, params?: { skip?: number; sort?: string }) {
+  const queryParams = new URLSearchParams()
+  if (typeof params?.skip === 'number') queryParams.append('skip', params.skip.toString())
+  if (params?.sort) queryParams.append('sort', params.sort)
+  
+  const queryString = queryParams.toString()
+  const url = `/montior/${slug}${queryString ? `?${queryString}` : ''}`
+  
+  return request<{montior: Monitor, logs: MonitorLog[], webHook?: MonitorWebHook | null}>(
+    url, {
+    method: 'GET',
+    auth: true,
+  })
+}
+
+export type PaypalLink = {
+  href: string
+  rel: string
+  method?: string
+}
+
+export type PaypalCreateOrderResponse = {
+  id: string
+  status?: string
+  links?: PaypalLink[]
+}
+
+export async function apiUpgradePro(input?: { serivce?: 'pro' | 'business' }) {
+  return request<PaypalCreateOrderResponse>('/payment/upgradePro', {
+    method: 'POST',
+    auth: true,
+    body: JSON.stringify(input ?? {}),
+  })
+}
+
+export async function apiCapturePaypalOrder(input: { id: string }) {
+  return request<unknown>('/payment/CaptureOrder', {
+    method: 'POST',
+    auth: true,
+    body: JSON.stringify(input),
   })
 }

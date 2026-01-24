@@ -44,3 +44,5 @@ let logsSchema = new Schema<ILogs> ({
 export const Log  = model<ILogs>("MontiorLogs",logsSchema)
 
 
+
+export interface IDocumentLogs extends ILogs, Document {}

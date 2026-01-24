@@ -1,15 +1,13 @@
 
 
 import validator from "validator"
-
 import bcrypt from "bcrypt"
 import {User} from "../models/User.js"
 import type {IUserDocument} from "../models/User.js"
-
 import jwt from "jsonwebtoken"
 import {AppError} from "./ErrorHandling.js"
 import type  {UserType} from "../@types/CustomUserType.js"
-
+import {Types} from "mongoose"
 export class UserHelper {
     private _username : string = "";
     private _password : string = "";
@@ -71,6 +69,7 @@ export class UserHelper {
             throw new AppError(400,"This value does not exist")
         }
     }
+  
 
     async CheckUser(email : string) : Promise<IUserDocument> 
     {
@@ -112,6 +111,11 @@ export class UserHelper {
         
         return user
     }
+    async UpdatePlan(id : Types.ObjectId , data : Record<string , string>) 
+    {
+        if (data.plan != "pro" && data.plan != "business")
+         await User.findByIdAndUpdate(id,data)
+    }
     async UpdateUserData(data : UserType ) {
         let userData : UserType = {...data} ;
         if (data.password)
@@ -138,8 +142,8 @@ export class UserHelper {
             this.email = data.email
             userData.email = this.email
         }
-        let userId = userData._id
-        delete userData._id
-        await User.findByIdAndUpdate(data._id,userData)
+        const {_id,...user} = userData 
+        await User.findByIdAndUpdate(_id._id,user)
     }
+   
 }

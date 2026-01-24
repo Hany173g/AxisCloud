@@ -1,7 +1,7 @@
 import type {Request,Response,NextFunction} from "express"
 import {User} from "../models/User.js"   
 import {UserHelper} from "../utils/UserClass.js"
-
+import { CreateLimitUser } from "../utils/ValadtionLimits.js"
 import type {IUserDocument} from "../models/User.js"
 
 import {hash} from "../utils/HashData.js"
@@ -9,8 +9,9 @@ import {hash} from "../utils/HashData.js"
 import {Token} from "../models/Token.js"
 
 import crypto from "crypto"
-import {sentEmail,sentForgetEmail} from "../services/SendEmail.js"
+import {sentForgetEmail} from "../services/SendEmail.js"
 import {GetCode} from "../utils/TokenChecks.js"
+import  { Types } from "mongoose"
 
 
 
@@ -25,6 +26,7 @@ export async function CreateUser(req : Request , res: Response,next: NextFunctio
         console.log(allUsers)
         console.log(newUser)
         let user  : any= await User.create({username:newUser.username,email:newUser.email,password:newUser.password})
+
         let token : string = newUser.CreateToken(newUser.username,user.role,user._id,user.plan)
         res.status(201).json({
                 token,
@@ -104,10 +106,11 @@ export async function UpdatePassword(req : Request , res : Response , next : Nex
     try{
         let token = (req.query.token as string) || ""
         let password : string  = req.body.password
-        let userId  : string= await GetCode(token)
+        let userId  : string =  await GetCode(token)
+        let objectId : Types.ObjectId = new Types.ObjectId(userId);
         let newUser = new UserHelper()
     
-        await newUser.UpdateUserData({password,_id:userId})
+        await newUser.UpdateUserData({password,_id:objectId})
         res.status(200).json()
     }catch(err)
     {

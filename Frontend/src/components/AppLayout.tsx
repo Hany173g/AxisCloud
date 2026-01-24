@@ -1,19 +1,60 @@
 import { useEffect, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { clearAuth, getAuth, onAuthChange, resolvePlan } from '../lib/auth'
+import { apiGetHome, type HomeUserData } from '../lib/api'
 import { normalizePlanId, PLANS } from '../utils/plans'
 
 export function AppLayout() {
   const navigate = useNavigate()
   const [auth, setAuthState] = useState(getAuth())
+  const [homeUser, setHomeUser] = useState<HomeUserData | null>(null)
+  const [loadingHome, setLoadingHome] = useState(false)
 
   useEffect(() => {
     return onAuthChange(() => setAuthState(getAuth()))
   }, [])
 
+  useEffect(() => {
+    let alive = true
+
+    async function load() {
+      if (!auth.token) {
+        setHomeUser(null)
+        return
+      }
+
+      setLoadingHome(true)
+      try {
+        const data = await apiGetHome()
+        if (!alive) return
+
+        if (!data.userData) {
+          clearAuth()
+          setHomeUser(null)
+          return
+        }
+
+        setHomeUser(data.userData)
+      } catch (err: any) {
+        if (!alive) return
+        if (err?.status === 401) {
+          clearAuth()
+        }
+        setHomeUser(null)
+      } finally {
+        if (alive) setLoadingHome(false)
+      }
+    }
+
+    load()
+    return () => {
+      alive = false
+    }
+  }, [auth.token])
+
   const token = auth.token
-  const username = auth.username
-  const planId = normalizePlanId(resolvePlan())
+  const username = homeUser?.username ?? null
+  const planId = normalizePlanId(homeUser?.plan ?? resolvePlan())
   const planName = PLANS[planId].name
 
   return (
@@ -45,7 +86,7 @@ export function AppLayout() {
             {token ? (
               <>
                 <span className="hidden text-slate-600 sm:inline">
-                  {username ?? 'User'} · {planName}
+                  {loadingHome ? 'Loading…' : (username ?? 'User')} · {planName}
                 </span>
                 <button
                   type="button"

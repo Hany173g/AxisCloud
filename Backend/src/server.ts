@@ -3,97 +3,67 @@ import { connectDB } from "./config/database.js";
 import dotenv from "dotenv"
 import {GlobalErrorHandling} from "./contoller/ErrorContoller.js"
 import cors from "cors"
-const app = express();
-
-// connect MongoDB
-connectDB();
-
-
-
-
-//Server Settings
-
-
-dotenv.config()
-app.use(express.json())
-
-
-  //Cors
-let corsOptions = {
-   origin: process.env.FRONTEND_URL,
-   methods: ["GET", "POST", "PUT", "DELETE"],
-}
-
-
-
-app.use(cors(corsOptions))
-
-
-
-
-
-// Env Varibles
-
-
-const PORT = process.env.PORT
-
-
-
-
-
-//Middlewares
+import helmet from "helmet"
+import {UpdateCheckAt} from "./utils/Montior.js"
 import {CheckToken} from  "./middleware/isUser.js"
-
-
-app.use(CheckToken)
-
-
-
-
-// Routes
-
-import {userRoute} from "./routes/User.js"
-
+import {userRoute} from "./routes/UserRoute.js"
+import {paymentRoute} from "./routes/PaymentRoute.js"
 import {montiorRoute} from "./routes/MontiorRoute.js"
-
-
-
-
-app.use(userRoute)
-
-app.use(montiorRoute)
-
-//Corns 
-
+import {homeRoute} from "./routes/HomeRoute.js"
+import {rateLimit} from "./routes/RateLimtingRoute.js"
 import {CleanToken} from "./cron/CleanToken.js"
 import {CheckCurrentMontiors} from "./cron/CheckMontiors.js"
 
-CleanToken()
-// CheckCurrentMontiors()
+const app = express();
 
+dotenv.config()
 
+// connect MongoDB
 
+async function startServer() {
+  await connectDB()
 
+  // Env Varibles
+  const PORT = process.env.PORT
 
+  // Middlewares Lib
+  app.use(express.json())
+  app.use(helmet())
 
+  let corsOptions = {
+    origin: process.env.FRONTEND_URL,
+    methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
+  }
 
+  app.use(cors(corsOptions))
 
+  //Middlewares
+  app.use(CheckToken)
 
+  // Routes
+  app.use(userRoute)
+  app.use("/payment",paymentRoute)
+  app.use(montiorRoute)
+  app.use(homeRoute)
+  app.use(rateLimit)
 
-// Error Handling 
+  // Update All Montiors Time To Now
+  await UpdateCheckAt()
+  console.log("All Montiors Update CheckAt")
 
+  //Corns 
+  CleanToken()
+  CheckCurrentMontiors()
 
-app.use(GlobalErrorHandling)
+  // Error Handling 
+  app.use(GlobalErrorHandling)
 
+  app.listen(PORT, () => {
+    console.log("Server started...");
+  });
+}
 
-
-
-
-
-
-
-
-
-app.listen(PORT, () => {
-  console.log("Server started...");
-});
+startServer().catch((err) => {
+  console.error(err)
+  process.exit(1)
+})

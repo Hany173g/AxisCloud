@@ -1,15 +1,41 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getAuth, onAuthChange } from '../lib/auth'
+import { apiGetHome } from '../lib/api'
 
 export function HomePage() {
   const [auth, setAuthState] = useState(getAuth())
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [logsCount, setLogsCount] = useState(0)
+  const [monitorsCount, setMonitorsCount] = useState(0)
 
   useEffect(() => {
     return onAuthChange(() => setAuthState(getAuth()))
   }, [])
 
-  const token = auth.token
+  useEffect(() => {
+    let alive = true
+
+    async function load() {
+      try {
+        const data = await apiGetHome()
+        if (!alive) return
+        setLoggedIn(!!data.userData)
+        setLogsCount(data.logsCount)
+        setMonitorsCount(data.monitorsCount)
+      } catch {
+        if (!alive) return
+        setLoggedIn(false)
+        setLogsCount(0)
+        setMonitorsCount(0)
+      }
+    }
+
+    load()
+    return () => {
+      alive = false
+    }
+  }, [auth.token])
 
   return (
     <div className="w-full">
@@ -25,13 +51,19 @@ export function HomePage() {
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              {token ? (
+              {loggedIn ? (
                 <>
                   <Link
                     to="/dashboard"
                     className="inline-flex items-center justify-center rounded-md bg-brand-800 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-900"
                   >
                     Go to dashboard
+                  </Link>
+                  <Link
+                    to="/payment/upgrade"
+                    className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                  >
+                    Upgrade plan
                   </Link>
                   <Link
                     to="/monitors/new"
@@ -47,6 +79,12 @@ export function HomePage() {
                     className="inline-flex items-center justify-center rounded-md bg-brand-800 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-brand-900"
                   >
                     Sign in
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                  >
+                    Upgrade plan
                   </Link>
                   <Link
                     to="/register"
@@ -99,6 +137,19 @@ export function HomePage() {
 
       <section className="w-full bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-12">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="text-sm font-semibold text-slate-900">Total Logs</div>
+              <div className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{logsCount}</div>
+              <div className="mt-1 text-sm text-slate-600">Monitor checks stored across the platform.</div>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="text-sm font-semibold text-slate-900">Total Monitors</div>
+              <div className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{monitorsCount}</div>
+              <div className="mt-1 text-sm text-slate-600">Active and inactive monitors created by users.</div>
+            </div>
+          </div>
+
           <div className="grid gap-6 md:grid-cols-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-6">
               <div className="text-sm font-semibold text-slate-900">Clear layout</div>
@@ -124,11 +175,11 @@ export function HomePage() {
             <div>
               <div className="text-sm font-semibold text-slate-900">Ready to continue?</div>
               <div className="mt-1 text-sm text-slate-600">
-                {token ? 'Continue from your dashboard.' : 'Sign in or create a new account.'}
+                {loggedIn ? 'Continue from your dashboard.' : 'Sign in or create a new account.'}
               </div>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              {token ? (
+              {loggedIn ? (
                 <>
                   <Link
                     to="/dashboard"
