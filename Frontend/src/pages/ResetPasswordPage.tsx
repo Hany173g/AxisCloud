@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { apiCheckCode, apiUpdatePassword } from '../lib/api'
+import { Seo } from '../components/Seo'
 
 export function ResetPasswordPage() {
   const [params] = useSearchParams()
@@ -43,8 +44,10 @@ export function ResetPasswordPage() {
   }, [token])
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <>
+      <Seo title="Reset password" description="Choose a new password for your AxisCloud account." noindex />
+      <div className="mx-auto max-w-md">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-lg font-semibold text-slate-900">Choose a new password</h1>
         <p className="mt-1 text-sm text-slate-600">Create a new password for your account.</p>
 
@@ -122,7 +125,8 @@ export function ResetPasswordPage() {
             </div>
           </form>
         ) : null}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

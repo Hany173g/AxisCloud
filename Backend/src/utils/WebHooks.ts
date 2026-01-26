@@ -16,7 +16,7 @@ export type WebHookDocument = HydratedDocument<IWebHook>;
 export async function SendWebHook(urls : string[],status : string,montior : IMontiorDocument) {
     let data = {
     content:
-    status === "up"
+    status === "Up"
                 ? `✅ **The monitor ${montior.name} is working perfectly again!**`
                 : `🚨 **${montior.name} is DOWN!**  
             ${process.env.FRONTEND_URL}/monitors/${montior.slug}`

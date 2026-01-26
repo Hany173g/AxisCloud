@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /monitors
+Disallow: /payment
+
+Sitemap: /sitemap.xml

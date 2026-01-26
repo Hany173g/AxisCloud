@@ -25,6 +25,8 @@ export async function CreateRateLimting(req : Request,res : Response, next : Nex
 export async function CreateLog(req : Request , res : Response , next : NextFunction) {
     try{
         const {logs,apiKey} = req.body
+        console.log(apiKey)
+        console.log(logs)
         await LogValdationAndCreate(logs,apiKey)
         res.status(201).json()
     }catch(err : any)  {

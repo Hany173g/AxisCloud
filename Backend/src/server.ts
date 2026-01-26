@@ -13,7 +13,7 @@ import {homeRoute} from "./routes/HomeRoute.js"
 import {rateLimit} from "./routes/RateLimtingRoute.js"
 import {CleanToken} from "./cron/CleanToken.js"
 import {CheckCurrentMontiors} from "./cron/CheckMontiors.js"
-
+import xss from 'xss-clean';
 const app = express();
 
 dotenv.config()
@@ -46,6 +46,7 @@ async function startServer() {
   app.use(montiorRoute)
   app.use(homeRoute)
   app.use(rateLimit)
+  app.use(xss())
 
   // Update All Montiors Time To Now
   await UpdateCheckAt()

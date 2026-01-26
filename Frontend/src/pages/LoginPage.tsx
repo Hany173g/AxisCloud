@@ -3,8 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { apiLogin } from '../lib/api'
 import { getTokenPayload, setAuth } from '../lib/auth'
 import { normalizePlanId } from '../utils/plans'
+import { Seo } from '../components/Seo'
+import { useLanguage } from '../contexts/LanguageContext'
 
 export function LoginPage() {
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -12,10 +15,12 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
-        <h1 className="text-xl font-semibold tracking-tight text-slate-900">Sign in</h1>
-        <p className="mt-1 text-sm text-slate-600">Enter your account details to continue.</p>
+    <>
+      <Seo title="Sign in" description="Sign in to your AxisCloud account." noindex />
+      <div className="mx-auto max-w-md">
+        <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+        <h1 className="text-xl font-semibold tracking-tight text-slate-900">{t('auth.login_title')}</h1>
+        <p className="mt-1 text-sm text-slate-600">{t('auth.login_subtitle')}</p>
 
         <form
           className="mt-6 space-y-4"
@@ -31,14 +36,14 @@ export function LoginPage() {
               setAuth({ token: res.token, username: res.username, plan })
               navigate('/dashboard', { replace: true })
             } catch (err: any) {
-              setError(err?.message ?? 'Login failed')
+              setError(err?.message ?? t('error'))
             } finally {
               setLoading(false)
             }
           }}
         >
           <div>
-            <label className="block text-sm font-medium text-slate-700">Email</label>
+            <label className="block text-sm font-medium text-slate-700">{t('auth.email')}</label>
             <input
               className="ui-input"
               value={email}
@@ -50,7 +55,7 @@ export function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700">Password</label>
+            <label className="block text-sm font-medium text-slate-700">{t('auth.password')}</label>
             <input
               className="ui-input"
               value={password}
@@ -72,19 +77,20 @@ export function LoginPage() {
             disabled={loading}
             className="ui-btn-primary w-full"
           >
-            {loading ? 'Signing in…' : 'Sign in'}
+            {loading ? t('loading') : t('auth.login_btn')}
           </button>
 
           <div className="flex items-center justify-between text-sm">
             <Link className="text-slate-600 hover:text-slate-900" to="/forgot-password">
-              Forgot password
+              {t('auth.forgot_password')}
             </Link>
             <Link className="text-brand-700 hover:text-brand-800" to="/register">
-              Create account
+              {t('auth.register_btn')}
             </Link>
           </div>
         </form>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

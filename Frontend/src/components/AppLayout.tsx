@@ -1,18 +1,40 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import { clearAuth, getAuth, onAuthChange, resolvePlan } from '../lib/auth'
 import { apiGetHome, type HomeUserData } from '../lib/api'
 import { normalizePlanId, PLANS } from '../utils/plans'
+import { LanguageSelector } from './LanguageSelector'
+import { useLanguage } from '../contexts/LanguageContext'
+import logo from '../assets/logo .png'
 
 export function AppLayout() {
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const [auth, setAuthState] = useState(getAuth())
   const [homeUser, setHomeUser] = useState<HomeUserData | null>(null)
   const [loadingHome, setLoadingHome] = useState(false)
 
+  // Memoize favicon update
   useEffect(() => {
-    return onAuthChange(() => setAuthState(getAuth()))
+    const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement
+    if (favicon) {
+      favicon.href = logo
+      return
+    }
+    const link = document.createElement('link')
+    link.rel = 'icon'
+    link.href = logo
+    document.head.appendChild(link)
   }, [])
+
+  // Memoize auth change handler
+  const handleAuthChange = useCallback(() => {
+    setAuthState(getAuth())
+  }, [])
+
+  useEffect(() => {
+    return onAuthChange(handleAuthChange)
+  }, [handleAuthChange])
 
   useEffect(() => {
     let alive = true
@@ -62,20 +84,24 @@ export function AppLayout() {
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-sm font-semibold tracking-tight text-slate-950">
-              AxisCloud
+            <Link to="/" className="flex items-center gap-3 text-base font-semibold tracking-tight text-slate-950">
+              <img src={logo} alt="AxisCloud" className="h-10 w-10 rounded-lg" />
+              <span>AxisCloud</span>
             </Link>
             <nav className="hidden items-center gap-4 text-sm text-slate-600 sm:flex">
               <Link className="hover:text-slate-900" to="/">
-                Home
+                {t('nav.home')}
               </Link>
               {token ? (
                 <>
                   <Link className="hover:text-slate-900" to="/dashboard">
-                    Dashboard
+                    {t('nav.dashboard')}
+                  </Link>
+                  <Link className="hover:text-slate-900" to="/monitors">
+                    {t('nav.monitors')}
                   </Link>
                   <Link className="hover:text-slate-900" to="/monitors/new">
-                    Monitors
+                    {t('nav.new_monitor')}
                   </Link>
                 </>
               ) : null}
@@ -83,10 +109,11 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3 text-sm">
+            <LanguageSelector />
             {token ? (
               <>
                 <span className="hidden text-slate-600 sm:inline">
-                  {loadingHome ? 'Loading…' : (username ?? 'User')} · {planName}
+                  {loadingHome ? t('loading') : (username ?? 'User')} · {planName}
                 </span>
                 <button
                   type="button"
@@ -96,19 +123,19 @@ export function AppLayout() {
                     navigate('/login', { replace: true })
                   }}
                 >
-                  Logout
+                  {t('nav.logout')}
                 </button>
               </>
             ) : (
               <>
                 <Link className="text-slate-700 hover:text-slate-900" to="/login">
-                  Sign in
+                  {t('nav.login')}
                 </Link>
                 <Link
                   className="rounded-md bg-brand-800 px-3 py-1.5 font-medium text-white hover:bg-brand-900"
                   to="/register"
                 >
-                  Create account
+                  {t('nav.register')}
                 </Link>
               </>
             )}
@@ -123,7 +150,10 @@ export function AppLayout() {
       <footer className="mt-auto w-full border-t border-slate-200 bg-slate-900 text-slate-200">
         <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="text-sm font-semibold">AxisCloud</div>
+            <Link to="/" className="inline-flex items-center gap-3 text-sm font-semibold">
+              <img src={logo} alt="AxisCloud" className="h-9 w-9 rounded-lg" />
+              <span>AxisCloud</span>
+            </Link>
             <div className="mt-1 text-xs text-slate-400">© {new Date().getFullYear()} AxisCloud. All rights reserved.</div>
           </div>
 

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiUpgradePro, type PaypalCreateOrderResponse } from '../lib/api'
 import { getAuth, resolvePlan } from '../lib/auth'
-import { normalizePlanId, PLANS, type PlanId } from '../utils/plans'
+import { normalizePlanId, PLANS, type PlanFeature, type PlanId } from '../utils/plans'
 
 function findApprovalUrl(order: PaypalCreateOrderResponse) {
   const links = order.links ?? []
@@ -21,6 +21,7 @@ export function PaymentUpgradePage() {
   const currentPlanId = useMemo(() => normalizePlanId(resolvePlan()), [])
   const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [activeFeature, setActiveFeature] = useState<PlanFeature | null>(null)
 
   async function startCheckout(plan: Exclude<PlanId, 'free'>) {
     setError(null)
@@ -73,6 +74,20 @@ export function PaymentUpgradePage() {
         </div>
       ) : null}
 
+      {activeFeature ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+            <div className="text-sm font-semibold text-slate-950">{activeFeature.title}</div>
+            <div className="mt-2 text-sm text-slate-600">{activeFeature.description}</div>
+            <div className="mt-4 flex justify-end">
+              <button type="button" className="ui-btn-secondary" onClick={() => setActiveFeature(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div className="rounded-3xl border border-slate-200 bg-white/90 p-8 shadow-sm backdrop-blur">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -96,13 +111,6 @@ export function PaymentUpgradePage() {
             const isDowngrade = currentPlanId !== 'free' && id === 'free'
             const canUpgrade = !isCurrent && !isDowngrade
             const busy = loadingPlan === id
-
-            const features: string[] = [
-              `${spec.maxMonitors} monitors`,
-              `Checks every ${spec.minCheckIntervalMinutes} min`,
-              `Timeout up to ${spec.maxRequestTimeoutSeconds} sec`,
-              `${spec.allowedMethods.length} HTTP methods`,
-            ]
 
             return (
               <div
@@ -132,20 +140,43 @@ export function PaymentUpgradePage() {
                 </div>
 
                 <ul className="mt-5 space-y-2 text-sm text-slate-700">
-                  {features.map((f) => (
-                    <li key={f} className="flex items-center gap-2">
-                      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path
-                            d="M20 6L9 17l-5-5"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                      <span>{f}</span>
+                  {spec.features.map((f) => (
+                    <li key={f.id}>
+                      <button
+                        type="button"
+                        className="flex w-full items-start gap-2 rounded-lg px-1 py-1 text-left hover:bg-slate-50"
+                        onClick={() => setActiveFeature(f)}
+                      >
+                        {f.included ? (
+                          <span className="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M20 6L9 17l-5-5"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </span>
+                        ) : (
+                          <span className="mt-0.5 inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-red-100 text-red-700">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path
+                                d="M18 6L6 18M6 6l12 12"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </span>
+                        )}
+                        <span className="min-w-0">
+                          <div className="text-sm font-medium text-slate-800">{f.title}</div>
+                          <div className="text-xs text-slate-600">{f.summary}</div>
+                        </span>
+                      </button>
                     </li>
                   ))}
                 </ul>

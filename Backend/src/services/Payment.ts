@@ -15,8 +15,6 @@ export const client  = new paypal.Client({
         oAuthClockSkew:300
     },
     timeout:0,
-    environment:process.env.PAYPAL_MODE === "sandbox" ? Environment.Sandbox : Environment.Production,
-    
-    
+    environment:process.env.PAYPAL_MODE === "sandbox" ? Environment.Sandbox : Environment.Production,  
 })
 

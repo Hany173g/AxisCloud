@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { apiCreateMonitor, type CreateMonitorInput } from '../lib/api'
 import { getAuth, resolvePlan } from '../lib/auth'
 import { normalizePlanId, PLANS } from '../utils/plans'
+import { Seo } from '../components/Seo'
 
 export function CreateMonitorPage() {
   const navigate = useNavigate()
@@ -78,8 +79,10 @@ export function CreateMonitorPage() {
   }, [method, requestTime, checkInterval, headers])
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10">
-      <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <>
+      <Seo title="Create monitor" description="Create a new uptime monitor." noindex />
+      <div className="mx-auto w-full max-w-3xl px-4 py-10">
+        <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-slate-900">Create monitor</h1>
@@ -260,7 +263,8 @@ export function CreateMonitorPage() {
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

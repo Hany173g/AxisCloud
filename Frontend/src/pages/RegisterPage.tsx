@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { apiRegister } from '../lib/api'
 import { getTokenPayload, setAuth } from '../lib/auth'
 import { normalizePlanId } from '../utils/plans'
+import { Seo } from '../components/Seo'
 
 export function RegisterPage() {
   const navigate = useNavigate()
@@ -13,8 +14,10 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <>
+      <Seo title="Create account" description="Create your AxisCloud account." noindex />
+      <div className="mx-auto max-w-md">
+        <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
         <h1 className="text-xl font-semibold tracking-tight text-slate-900">Create account</h1>
         <p className="mt-1 text-sm text-slate-600">Create your account to continue.</p>
 
@@ -96,6 +99,7 @@ export function RegisterPage() {
           </div>
         </form>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

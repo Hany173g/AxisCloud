@@ -84,10 +84,7 @@ export class UserHelper {
    async ComparePassword(hashedPassword: string , inputPassword : string)
     {
         this.CheckPasswordRules(inputPassword)
-        console.log(hashedPassword)
-        console.log(inputPassword)
         const isMatch = await bcrypt.compare(inputPassword,hashedPassword)
-        console.log(isMatch)
         if (!isMatch)
         {
             throw new AppError(400,"Password is incorrect")

@@ -97,7 +97,9 @@ export function ResetPassword(username : string , resetLink : string) {
 export function AlertMontior(username : string,status : string,serviceName : string,time : Date,slug : string , issue  : boolean) {
     let FRONTEND_URL = process.env.FRONTEND_URL || ""
     let montiorUrl : string  = FRONTEND_URL  + "monitors/"+ slug
+    console.log(issue)
     let message = issue ? "Your monitored service has encountered an issue:"  : "The website service has been restored:"
+    console.log(message)
    let html =  `<!DOCTYPE html>
     <html lang="en">
     <head>

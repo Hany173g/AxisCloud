@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { apiCreateCode } from '../lib/api'
+import { Seo } from '../components/Seo'
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -9,8 +10,10 @@ export function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <div className="mx-auto max-w-md">
-      <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <>
+      <Seo title="Reset password" description="Request a password reset link." noindex />
+      <div className="mx-auto max-w-md">
+        <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
         <h1 className="text-xl font-semibold tracking-tight text-slate-900">Reset password</h1>
         <p className="mt-1 text-sm text-slate-600">We will email you a reset link.</p>
 
@@ -70,6 +73,7 @@ export function ForgotPasswordPage() {
           </div>
         </form>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

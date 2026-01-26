@@ -12,6 +12,7 @@ import {
   type UpdateMonitorInput,
 } from '../lib/api'
 import { getAuth } from '../lib/auth'
+import { Seo } from '../components/Seo'
 
 export function MonitorDetailsPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -256,8 +257,10 @@ export function MonitorDetailsPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-10">
-      <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <>
+      <Seo title={monitor?.name ? `Monitor: ${monitor.name}` : 'Monitor'} description="Monitor details and configuration." noindex />
+      <div className="mx-auto w-full max-w-3xl px-4 py-10">
+        <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-slate-900">
@@ -541,7 +544,7 @@ export function MonitorDetailsPage() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-6">
+        <div className="mt-6 grid gap-8">
           {canUseHooks ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
               <div className="flex items-center justify-between gap-3">
@@ -590,14 +593,31 @@ export function MonitorDetailsPage() {
                               {k}
                             </span>
                           </div>
-                          <a
-                            href={v}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-1 block break-all text-xs text-slate-600 hover:text-brand-600"
-                          >
-                            {v}
-                          </a>
+                          <div className="mt-1 flex items-center gap-2">
+                            <a
+                              href={v}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={v}
+                              className="min-w-0 flex-1 truncate text-xs text-slate-600 hover:text-brand-600"
+                            >
+                              {v}
+                            </a>
+                            <button
+                              type="button"
+                              className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+                              title="Copy URL"
+                              onClick={async () => {
+                                try {
+                                  await navigator.clipboard.writeText(v)
+                                } catch {
+                                  // ignore
+                                }
+                              }}
+                            >
+                              Copy
+                            </button>
+                          </div>
                         </div>
                         {editing ? (
                           <button
@@ -712,64 +732,60 @@ export function MonitorDetailsPage() {
             </div>
           ) : null}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">Active</h3>
-              <div className="mt-1">
-                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                  monitor.isActive
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-slate-100 text-slate-700'
-                }`}>
-                  {monitor.isActive ? 'Active' : 'Inactive'}
-                </span>
+          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="text-sm font-semibold text-slate-900">Monitor</h3>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <h4 className="text-sm font-medium text-slate-900">Active</h4>
+                <div className="mt-1">
+                  <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${
+                    monitor.isActive
+                      ? 'border-emerald-200 bg-emerald-100 text-emerald-800'
+                      : 'border-slate-200 bg-slate-100 text-slate-800'
+                  }`}>
+                    {monitor.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">Status</h3>
-              <div className="mt-1">
-                <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                  String(monitor.status).toLowerCase() === 'up'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : String(monitor.status).toLowerCase() === 'down'
-                    ? 'bg-red-100 text-red-700'
-                    : 'bg-slate-100 text-slate-700'
-                }`}>
-                  {monitor.status}
-                </span>
+              <div>
+                <h4 className="text-sm font-medium text-slate-900">Status</h4>
+                <div className="mt-1">
+                  <span className={`inline-flex rounded-full border px-2 py-1 text-xs font-semibold ${
+                    String(monitor.status).toLowerCase() === 'up'
+                      ? 'border-emerald-200 bg-emerald-100 text-emerald-800'
+                      : String(monitor.status).toLowerCase() === 'down'
+                      ? 'border-red-200 bg-red-100 text-red-800'
+                      : 'border-slate-200 bg-slate-100 text-slate-800'
+                  }`}>
+                    {monitor.status}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">Method</h3>
-              <div className="mt-1">
-                <span className="inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
-                  {monitor.method}
-                </span>
+              <div>
+                <h4 className="text-sm font-medium text-slate-900">Method</h4>
+                <div className="mt-1">
+                  <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-800">
+                    {monitor.method}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">Check Interval</h3>
-              <p className="mt-1 text-sm text-slate-600">{monitor.checkInterval} minutes</p>
-            </div>
+              <div>
+                <h4 className="text-sm font-medium text-slate-900">Check Interval</h4>
+                <p className="mt-1 text-sm text-slate-600">{monitor.checkInterval} minutes</p>
+              </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">Request Timeout</h3>
-              <p className="mt-1 text-sm text-slate-600">{monitor.requestTime} seconds</p>
-            </div>
+              <div>
+                <h4 className="text-sm font-medium text-slate-900">Request Timeout</h4>
+                <p className="mt-1 text-sm text-slate-600">{monitor.requestTime} seconds</p>
+              </div>
 
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">Plan</h3>
-              <p className="mt-1 text-sm text-slate-600 capitalize">{monitor.plan}</p>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-slate-900">Last Check</h3>
-              <p className="mt-1 text-sm text-slate-600">
-                {monitor.checkAt ? formatDate(monitor.checkAt.toString()) : 'Never'}
-              </p>
+              <div>
+                <h4 className="text-sm font-medium text-slate-900">Plan</h4>
+                <p className="mt-1 text-sm text-slate-600 capitalize">{monitor.plan}</p>
+              </div>
             </div>
           </div>
 
@@ -801,7 +817,7 @@ export function MonitorDetailsPage() {
           )}
 
           {logs.length > 0 && (
-            <div>
+            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="text-sm font-medium text-slate-900">Monitor Logs</h3>
                 <div className="flex items-center gap-2">
@@ -833,7 +849,7 @@ export function MonitorDetailsPage() {
                     {logs.map((log, index) => (
                       <tr 
                         key={log._id} 
-                        className="border-b border-slate-100"
+                        className={`border-b border-slate-100 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'} hover:bg-slate-100`}
                         ref={index === logs.length - 1 ? lastLogRef : null}
                       >
                         <td className="py-2 text-xs text-slate-600">
@@ -891,7 +907,8 @@ export function MonitorDetailsPage() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

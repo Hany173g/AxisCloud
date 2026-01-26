@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { apiGetHome, apiGetMonitors, type HomeUserData, type Monitor } from '../lib/api'
 import { clearAuth, getAuth } from '../lib/auth'
+import { Seo } from '../components/Seo'
 
 export function DashboardPage() {
   const navigate = useNavigate()
@@ -51,7 +52,7 @@ export function DashboardPage() {
         const data = await apiGetMonitors({ sort: '-createdAt' })
         setMonitors(data.montiors)
       } catch (err) {
-        console.error('Failed to fetch monitors:', err)
+        // Failed to fetch monitors
       } finally {
         setLoading(false)
       }
@@ -64,8 +65,10 @@ export function DashboardPage() {
   const totalMonitors = monitors.length
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <>
+      <Seo title="Dashboard" description="Your AxisCloud dashboard." noindex />
+      <div className="mx-auto max-w-3xl">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-lg font-semibold text-slate-900">Dashboard</h1>
         <p className="mt-1 text-sm text-slate-600">
           Welcome{homeUser?.username ? `, ${homeUser.username}` : ''}.
@@ -144,7 +147,8 @@ export function DashboardPage() {
             )}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
