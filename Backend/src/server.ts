@@ -28,7 +28,7 @@ async function startServer() {
 
   // Middlewares Lib
   app.use(express.json())
-  app.use(helmet())
+  app.use(helmet({contentSecurityPolicy:false}))
 
   let corsOptions = {
     origin: process.env.FRONTEND_URL,
