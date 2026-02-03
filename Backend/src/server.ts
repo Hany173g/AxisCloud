@@ -3,7 +3,7 @@ import { connectDB } from "./config/database.js";
 import dotenv from "dotenv"
 import {GlobalErrorHandling} from "./contoller/ErrorContoller.js"
 import cors from "cors"
-import helmet from "helmet"
+import helmet from "helmet";
 import {UpdateCheckAt} from "./utils/Montior.js"
 import {CheckToken} from  "./middleware/isUser.js"
 import {userRoute} from "./routes/UserRoute.js"
@@ -28,7 +28,7 @@ async function startServer() {
 
   // Middlewares Lib
   app.use(express.json())
-  app.use(helmet({contentSecurityPolicy:false}))
+  app.use((helmet as any)());
 
   let corsOptions = {
     origin: process.env.FRONTEND_URL,
