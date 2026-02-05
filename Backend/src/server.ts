@@ -53,8 +53,8 @@ async function startServer() {
   console.log("All Montiors Update CheckAt")
 
   //Corns 
-  // CleanToken()
-  // CheckCurrentMontiors()
+  CleanToken()
+  CheckCurrentMontiors()
 
   // Error Handling 
   app.use(GlobalErrorHandling)
@@ -68,3 +68,4 @@ startServer().catch((err) => {
   console.error(err)
   process.exit(1)
 })
+export default app
