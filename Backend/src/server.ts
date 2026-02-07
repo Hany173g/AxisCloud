@@ -31,7 +31,7 @@ async function startServer() {
   app.use((helmet as any)());
 
   let corsOptions = {
-    origin: process.env.FRONTEND_URL,
+    origin:"*",
     methods: ["GET", "POST", "PUT", "DELETE","PATCH"],
   }
 
