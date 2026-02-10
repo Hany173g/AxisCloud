@@ -27,16 +27,15 @@ async function startServer() {
   const PORT = process.env.PORT
 
   // Middlewares Lib
-//   app.use(express.json())
-//   const corsOptions = {
-//   origin: "*",
-//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-//   optionsSuccessStatus: 204
-// };
-// app.use(cors(corsOptions));
-  // app.use((helmet as any)());
-
+  app.use(express.json())
+  const corsOptions = {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    optionsSuccessStatus: 204
+  };
+  app.use(cors(corsOptions));
+  app.use((helmet as any)());
 
   //Middlewares
   app.use(CheckToken)
