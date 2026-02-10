@@ -1,4 +1,7 @@
-FROM node:22.16.0
+FROM node:latest
+
+
+WORKDIR /app
 
 
 COPY package*.json ./
