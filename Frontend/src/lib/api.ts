@@ -29,7 +29,11 @@ async function request<T>(path: string, init?: ApiRequestOptions): Promise<T> {
   const url = `${getBaseUrl()}${path}`
 
   const headers = new Headers(init?.headers)
-  if (!headers.has('Content-Type')) headers.set('Content-Type', 'application/json')
+  const hasBody = init?.body !== undefined && init?.body !== null
+  const isFormData = typeof FormData !== 'undefined' && init?.body instanceof FormData
+  if (hasBody && !isFormData && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
   if (init?.auth) {
     const authHeader = getAuthHeader() as Record<string, string>
     for (const [k, v] of Object.entries(authHeader)) headers.set(k, v)
