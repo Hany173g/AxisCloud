@@ -13,7 +13,7 @@ import {homeRoute} from "./routes/HomeRoute.js"
 import {rateLimit} from "./routes/RateLimtingRoute.js"
 import {CleanToken} from "./cron/CleanToken.js"
 import {CheckCurrentMontiors} from "./cron/CheckMontiors.js"
-
+import corsMiddleware from "./middleware/corsMiddleware.js"
 const app = express();
 
 dotenv.config()
@@ -27,6 +27,7 @@ async function startServer() {
   const PORT = process.env.PORT
 
   // Middlewares Lib
+  app.use(corsMiddleware);
   app.use(express.json())
   const corsOptions = {
     origin: "*",
