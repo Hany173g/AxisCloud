@@ -19,27 +19,35 @@ dotenv.config()
 
 // connect MongoDB
 
-async function startServer() {
-  await connectDB()
-
-  // Env Varibles
-  const PORT = process.env.PORT
+let routesInitialized = false
+function initRoutesOnce() {
+  if (routesInitialized) return
 
   // Middlewares Lib
-  app.use(corsMiddleware);
+  app.use(corsMiddleware)
   app.use(express.json())
-  app.use((helmet as any)());
+  app.use((helmet as any)())
 
   //Middlewares
   app.use(CheckToken)
 
   // Routes
   app.use(userRoute)
-  app.use("/payment",paymentRoute)
+  app.use("/payment", paymentRoute)
   app.use(montiorRoute)
   app.use(homeRoute)
   app.use(rateLimit)
-  
+
+  // Error Handling
+  app.use(GlobalErrorHandling)
+
+  routesInitialized = true
+}
+
+async function startServer() {
+  await connectDB()
+
+  initRoutesOnce()
 
   // Update All Montiors Time To Now
   await UpdateCheckAt()
@@ -49,16 +57,23 @@ async function startServer() {
   CleanToken()
   CheckCurrentMontiors()
 
-  // Error Handling 
-  app.use(GlobalErrorHandling)
+  // Env Varibles
+  const PORT = process.env.PORT
 
   app.listen(PORT, () => {
-    console.log("Server started...");
-  });
+    console.log("Server started...")
+  })
 }
 
-startServer().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
-export default app
+if (!process.env.VERCEL) {
+  startServer().catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
+}
+
+export default function handler(req: any, res: any) {
+  // Ensure routes are registered for serverless usage
+  initRoutesOnce()
+  return connectDB().then(() => app(req, res))
+}
