@@ -2,7 +2,6 @@ import express from "express";
 import { connectDB } from "./config/database.js";
 import dotenv from "dotenv"
 import {GlobalErrorHandling} from "./contoller/ErrorContoller.js"
-import cors from "cors"
 import helmet from "helmet";
 import {UpdateCheckAt} from "./utils/Montior.js"
 import {CheckToken} from  "./middleware/isUser.js"
@@ -29,13 +28,6 @@ async function startServer() {
   // Middlewares Lib
   app.use(corsMiddleware);
   app.use(express.json())
-  const corsOptions = {
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    optionsSuccessStatus: 204
-  };
-  app.use(cors(corsOptions));
   app.use((helmet as any)());
 
   //Middlewares
