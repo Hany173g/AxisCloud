@@ -65,22 +65,22 @@ export function MonitorDetailsPage() {
       } else {
         setLoading(true)
         const data = await apiGetMonitor(slug, { skip: skipCount, sort: sortValue })
-        setMonitor(data.montior)
+        setMonitor(data.monitor)
         setLogs(data.logs || [])
         setWebHook(data.webHook ?? null)
         setHasMore((data.logs || []).length === 10)
 
         // Keep edit form in sync with latest monitor when not actively editing
         if (!editing) {
-          setEditName(data.montior.name ?? '')
-          setEditUrl(data.montior.url ?? '')
-          const m = String(data.montior.method ?? 'GET').toUpperCase()
+          setEditName(data.monitor.name ?? '')
+          setEditUrl(data.monitor.url ?? '')
+          const m = String(data.monitor.method ?? 'GET').toUpperCase()
           setEditMethod(m === 'POST' ? 'POST' : m === 'HEAD' ? 'HEAD' : 'GET')
-          setEditCheckInterval(Number(data.montior.checkInterval ?? 5))
-          setEditRequestTime(Number(data.montior.requestTime ?? 5))
-          setEditIsActive(Boolean(data.montior.isActive))
-          setEditIsAlerts(Boolean(data.montior.isAlerts))
-          const hdr = data.montior.Headers ?? {}
+          setEditCheckInterval(Number(data.monitor.checkInterval ?? 5))
+          setEditRequestTime(Number(data.monitor.requestTime ?? 5))
+          setEditIsActive(Boolean(data.monitor.isActive))
+          setEditIsAlerts(Boolean(data.monitor.isAlerts))
+          const hdr = data.monitor.Headers ?? {}
           setEditHeadersText(
             Object.entries(hdr)
               .map(([k, v]) => `${k}: ${v}`)

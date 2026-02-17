@@ -1,18 +1,19 @@
 import express from "express";
-import { connectDB } from "./config/database.js";
+import { connectDB } from "./config/database.config.js";
 import dotenv from "dotenv"
-import {GlobalErrorHandling} from "./contoller/ErrorContoller.js"
+import { globalErrorHandling } from "./controllers/error.controller.js"
 import helmet from "helmet";
-import {UpdateCheckAt} from "./utils/Montior.js"
-import {CheckToken} from  "./middleware/isUser.js"
-import {userRoute} from "./routes/UserRoute.js"
-import {paymentRoute} from "./routes/PaymentRoute.js"
-import {montiorRoute} from "./routes/MontiorRoute.js"
-import {homeRoute} from "./routes/HomeRoute.js"
-import {rateLimit} from "./routes/RateLimtingRoute.js"
-import {CleanToken} from "./cron/CleanToken.js"
-import {CheckCurrentMontiors} from "./cron/CheckMontiors.js"
-import corsMiddleware from "./middleware/corsMiddleware.js"
+import { updateCheckAt } from "./utils/monitor.util.js"
+import { checkToken } from "./middleware/auth.middleware.js"
+import { userRoute } from "./routes/user.route.js"
+import { paymentRoute } from "./routes/payment.route.js"
+import { monitorRoute } from "./routes/monitor.route.js"
+import { homeRoute } from "./routes/home.route.js"
+import { rateLimitRoute } from "./routes/rate-limiting.route.js"
+import { cleanToken } from "./cron/clean-token.cron.js"
+import { checkCurrentMonitors } from "./cron/check-monitors.cron.js"
+import corsMiddleware from "./middleware/cors.middleware.js"
+import client from "./config/redis.config.js"
 const app = express();
 
 dotenv.config()
@@ -29,33 +30,26 @@ function initRoutesOnce() {
   app.use((helmet as any)())
 
   //Middlewares
-  app.use(CheckToken)
+  app.use(checkToken)
 
   // Routes
-  app.use(userRoute)
-  app.use("/payment", paymentRoute)
-  app.use(montiorRoute)
-  app.use(homeRoute)
-  app.use(rateLimit)
-
+  app.use("/api",userRoute)
+  app.use("/api/payment", paymentRoute)
+  app.use("/api/monitor",monitorRoute)
+  app.use("/api",homeRoute)
+  app.use(rateLimitRoute)
   // Error Handling
-  app.use(GlobalErrorHandling)
+  app.use(globalErrorHandling)
 
   routesInitialized = true
 }
-
 async function startServer() {
   await connectDB()
-
+  await client.connect()
   initRoutesOnce()
-
-  // Update All Montiors Time To Now
-  await UpdateCheckAt()
-  console.log("All Montiors Update CheckAt")
-
-  //Corns 
-  CleanToken()
-  CheckCurrentMontiors()
+  await updateCheckAt()
+  cleanToken()
+  checkCurrentMonitors()
 
   // Env Varibles
   const PORT = process.env.PORT

@@ -25,12 +25,12 @@ export function MonitorsPage() {
       const data = await apiGetMonitors({ skip: skipCount, sort: sortValue })
       
       if (isLoadMore) {
-        setMonitors(prev => [...prev, ...data.montiors])
+        setMonitors(prev => [...prev, ...data.monitors])
       } else {
-        setMonitors(data.montiors)
+        setMonitors(data.monitors)
       }
       
-      setHasMore(data.montiors.length === 10)
+      setHasMore(data.monitors.length === 10)
     } catch (err: any) {
       setError(err?.message ?? 'Failed to fetch monitors')
     } finally {

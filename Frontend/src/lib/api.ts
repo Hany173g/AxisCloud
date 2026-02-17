@@ -68,14 +68,14 @@ export async function apiRegister(input: {
   email: string
   password: string
 }) {
-  return request<AuthResponse>('/CreateUser', {
+  return request<AuthResponse>('/api/CreateUser', {
     method: 'POST',
     body: JSON.stringify(input),
   })
 }
 
 export async function apiLogin(input: { email: string; password: string }) {
-  return request<AuthResponse>('/Login', {
+  return request<AuthResponse>('/api/Login', {
     method: 'POST',
     body: JSON.stringify(input),
   })
@@ -96,7 +96,7 @@ export type HomeResponse = {
 }
 
 export async function apiGetHome() {
-  const data = await request<{ websiteData: number[]; userData: HomeUserData | null }>('/GetHome', {
+  const data = await request<{ websiteData: number[]; userData: HomeUserData | null }>('/api/getHome', {
     method: 'GET',
     auth: true,
   })
@@ -112,20 +112,20 @@ export async function apiGetHome() {
 }
 
 export async function apiCreateCode(input: { email: string }) {
-  return request<unknown>('/CreateCode', {
+  return request<unknown>('/api/CreateCode', {
     method: 'POST',
     body: JSON.stringify(input),
   })
 }
 
 export async function apiCheckCode(token: string) {
-  return request<unknown>(`/CheckCode?token=${encodeURIComponent(token)}`, {
+  return request<unknown>(`/api/CheckForgetPasswordCode?token=${encodeURIComponent(token)}`, {
     method: 'POST',
   })
 }
 
 export async function apiUpdatePassword(token: string, input: { password: string }) {
-  return request<unknown>(`/UpdatePassword?token=${encodeURIComponent(token)}`, {
+  return request<unknown>(`/api/UpdatePassword?token=${encodeURIComponent(token)}`, {
     method: 'POST',
     body: JSON.stringify(input),
   })
@@ -142,7 +142,7 @@ export type CreateMonitorInput = {
 }
 
 export async function apiCreateMonitor(input: CreateMonitorInput) {
-  return request<unknown>('/CreateMontior', {
+  return request<unknown>('/api/monitor/createMonitor', {
     method: 'POST',
     auth: true,
     body: JSON.stringify(input),
@@ -161,38 +161,38 @@ export type UpdateMonitorInput = {
   hooks?: Record<string, string>
 }
 
-export async function apiUpdateMonitor(montiorId: string, input: UpdateMonitorInput) {
-  return request<{ updateMontior: Monitor }>(`/UpdateMontior/${encodeURIComponent(montiorId)}`, {
+export async function apiUpdateMonitor(monitorId: string, input: UpdateMonitorInput) {
+  return request<{ updateMonitor: Monitor }>(`/api/monitor/updateMonitor/${encodeURIComponent(monitorId)}`, {
     method: 'PATCH',
     auth: true,
     body: JSON.stringify(input),
   })
 }
 
-export async function apiDeleteMonitor(montiorId: string) {
-  return request<unknown>(`/DeleteMontior/${encodeURIComponent(montiorId)}`, {
+export async function apiDeleteMonitor(monitorId: string) {
+  return request<unknown>(`/api/monitor/deleteMonitor/${encodeURIComponent(monitorId)}`, {
     method: 'DELETE',
     auth: true,
   })
 }
 
-export async function apiDeleteWebhookField(serivceId: string, input: { hookName: string }) {
-  return request<unknown>(`/deleteFeildWebHook/${encodeURIComponent(serivceId)}`, {
+export async function apiDeleteWebhookField(serviceId: string, input: { hookName: string }) {
+  return request<unknown>(`/api/monitor/deleteFieldWebHook/${encodeURIComponent(serviceId)}`, {
     method: 'DELETE',
     auth: true,
     body: JSON.stringify(input),
   })
 }
 
-export async function apiDeleteAllWebhookFields(serivceId: string) {
-  return request<unknown>(`/deleteAllFeildsWebHook/${encodeURIComponent(serivceId)}`, {
+export async function apiDeleteAllWebhookFields(serviceId: string) {
+  return request<unknown>(`/api/monitor/deleteAllFieldsWebHook/${encodeURIComponent(serviceId)}`, {
     method: 'DELETE',
     auth: true,
   })
 }
 
 export async function apiTestUptime(url: string) {
-  return request<{statusCode: number, headers: Record<string, string>, url: string}>('/testUpTime', {
+  return request<{statusCode: number, headers: Record<string, string>, url: string}>('/api/monitor/testUpTime', {
     method: 'POST',
     auth: true,
     body: JSON.stringify({ url }),
@@ -201,7 +201,7 @@ export async function apiTestUptime(url: string) {
 
 export type MonitorLog = {
   _id: string
-  montiorId: string
+  monitorId: string
   status: string
   httpStatus: number
   responseTime: number
@@ -238,9 +238,9 @@ export async function apiGetMonitors(params?: { skip?: number; sort?: string }) 
   if (params?.sort) queryParams.append('sort', params.sort)
   
   const queryString = queryParams.toString()
-  const url = `/GetMontiors${queryString ? `?${queryString}` : ''}`
+  const url = `/api/monitor/getMonitors${queryString ? `?${queryString}` : ''}`
   
-  return request<{montiors: Monitor[]}>(
+  return request<{monitors: Monitor[]}>(
     url, {
     method: 'GET',
     auth: true,
@@ -253,9 +253,9 @@ export async function apiGetMonitor(slug: string, params?: { skip?: number; sort
   if (params?.sort) queryParams.append('sort', params.sort)
   
   const queryString = queryParams.toString()
-  const url = `/montior/${slug}${queryString ? `?${queryString}` : ''}`
+  const url = `/api/monitor/monitor/${slug}${queryString ? `?${queryString}` : ''}`
   
-  return request<{montior: Monitor, logs: MonitorLog[], webHook?: MonitorWebHook | null}>(
+  return request<{monitor: Monitor, logs: MonitorLog[], webHook?: MonitorWebHook | null}>(
     url, {
     method: 'GET',
     auth: true,
@@ -275,7 +275,7 @@ export type PaypalCreateOrderResponse = {
 }
 
 export async function apiUpgradePro(input?: { serivce?: 'pro' | 'business' }) {
-  return request<PaypalCreateOrderResponse>('/payment/upgradePro', {
+  return request<PaypalCreateOrderResponse>('/api/payment/upgradePro', {
     method: 'POST',
     auth: true,
     body: JSON.stringify(input ?? {}),
@@ -283,7 +283,7 @@ export async function apiUpgradePro(input?: { serivce?: 'pro' | 'business' }) {
 }
 
 export async function apiCapturePaypalOrder(input: { id: string }) {
-  return request<unknown>('/payment/CaptureOrder', {
+  return request<unknown>('/api/payment/CaptureOrder', {
     method: 'POST',
     auth: true,
     body: JSON.stringify(input),

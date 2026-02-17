@@ -1,24 +1,17 @@
 services:
-  axiscloud:
-    build: .
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    networks:
-      - app-network   
-  mongo:
-    build:
-      context: .
-      dockerfile: src/config/Dockerfile
-    ports:
-      - "27017:27017"
+  
+   
+  redis:
+    image: redis:latest
     volumes:
-      - mongo-data:/data/db
+      - redis-data:/data
+    ports:
+      - "6379:6379"
     networks:
-       - app-network       
+      - app-network
 volumes:
-  mongo-data:
+  redis-data:
 networks:
-  app-network: {
+  app-network: 
     driver: bridge
-  }
+  

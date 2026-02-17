@@ -50,7 +50,7 @@ export function DashboardPage() {
     async function fetchMonitors() {
       try {
         const data = await apiGetMonitors({ sort: '-createdAt' })
-        setMonitors(data.montiors)
+        setMonitors(data.monitors)
       } catch (err) {
         // Failed to fetch monitors
       } finally {
