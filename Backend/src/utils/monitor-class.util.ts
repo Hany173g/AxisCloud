@@ -92,6 +92,9 @@ export class MonitorHelper {
     }
 
     checkHeadersValue(headers: Record<string, string>) {
+        if(typeof headers !== "object") {
+            throw new AppError(400, "Headers must be an object")
+        }
         if (headers) {
             for (const key in headers) {
                 if (typeof headers[key] != "string") {

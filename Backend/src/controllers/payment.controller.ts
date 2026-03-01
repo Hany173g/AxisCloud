@@ -22,7 +22,8 @@ export async function upgradeToPro(req: Request, res: Response, next: NextFuncti
         await createLog("Monitor", service, response.result.id || "", user._id, "PayPal order created successfully", amount, "CREATED")
         res.status(200).json(response.result)
     } catch (err: any) {
-        res.status(400).json(err.message)
+        console.log(err.message)
+       next(err)
     }
 }
 

@@ -14,9 +14,23 @@ import { cleanToken } from "./cron/clean-token.cron.js"
 import { checkCurrentMonitors } from "./cron/check-monitors.cron.js"
 import corsMiddleware from "./middleware/cors.middleware.js"
 import client from "./config/redis.config.js"
+import forceHttpsMiddleware from "./middleware/force-https.middleware.js"
+import fs from "fs"
+import https from "https"
+import http from "http"
 const app = express();
 
 dotenv.config()
+
+
+
+// Options force https
+
+const options = {
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.cert')
+};
+
 
 // connect MongoDB
 
@@ -31,6 +45,7 @@ function initRoutesOnce() {
 
   //Middlewares
   app.use(checkToken)
+  app.use(forceHttpsMiddleware)
 
   // Routes
   app.use("/api",userRoute)
@@ -43,26 +58,33 @@ function initRoutesOnce() {
 
   routesInitialized = true
 }
+
+
+
 async function startServer() {
   await connectDB()
-  await client.connect()
+  // await clie nt.connect()
   initRoutesOnce()
   await updateCheckAt()
   cleanToken()
   checkCurrentMonitors()
 
   // Env Varibles
-  const PORT = process.env.PORT
+  const PORT_HTTPS = process.env.PORT_HTTPS
+  const PORT_HTTP = process.env.PORT_HTTP
 
-  app.listen(PORT, () => {
-    console.log("Server started...")
+  https.createServer(options,app).listen(PORT_HTTPS, () => {
+    console.log(`Server is running on port ${PORT_HTTPS}`)
+  })
+  http.createServer(app).listen(PORT_HTTP, () => {
+    console.log(`Server is running on port ${PORT_HTTP}`)
   })
 }
 
 if (!process.env.VERCEL) {
   startServer().catch((err) => {
     console.error(err)
-    process.exit(1)
+
   })
 }
 

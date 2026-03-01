@@ -56,7 +56,7 @@ export class UserHelper {
 
     roleChecks(value: string) {
         const allowRoles = ["admin", "member", "support"]
-        if (allowRoles.includes(value)) {
+        if (!allowRoles.includes(value)) {
             throw new AppError(400, "This value does not exist")
         }
     }
@@ -94,6 +94,9 @@ export class UserHelper {
 
     async updatePlan(id: Types.ObjectId, data: Record<string, string>) {
         if (data.plan != "pro" && data.plan != "business")
+        {
+            throw new AppError(400, "This plan does not exist")
+        }
             await User.findByIdAndUpdate(id, data)
     }
 
